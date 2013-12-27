@@ -1,0 +1,16 @@
+--aplo arxeio me to opoio tha sumfwnisoume se ti kwdiko
+--tha antistoixei mia entoli, xrhsimopoiontas enan exupno 
+--tropo sumfwna me auto pou exoume dei sto mathima....
+
+--o poio aplos tropos einai to opcode na einai 5bit afou 
+--metrisa 21 diaforetikes entoles....
+
+--tha exoume thn morfi auti.
+--kapoios na sumplirwsei...
+--me x exw valei tis adiafores times twn 
+--ypoloipwn 3 bit tis entolis
+
+Command			opcode   		 Function			Description
+-------			------			-----------			-----------
+Load R,#d	   xxx00001	   	R<-d					anathetei thn amesh timh d ston kataxwriti R
+														 
