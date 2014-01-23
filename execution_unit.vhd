@@ -57,3 +57,49 @@ LB: out std_logic;
 UB: out std_logic 
 ); 
 end execution_unit;
+
+architecture execution_unit of execution_unit is
+		component reg_buf is
+			port(
+			input : in std_logic_vector(15 downto 0);
+			writeEnable,clk : in std_logic;
+			output: out std_logic_vector(15 downto 0)
+			);
+		end component;
+
+        component alu is
+                port(
+                         carryEnable : in std_logic;
+                         cin : in std_logic;
+                         R : in  std_logic_vector(7 downto 0);
+                         S : in        std_logic_vector(7 downto 0);
+                         sel : in std_logic_vector(2 downto 0);
+                         dataOut : out std_logic_vector(7 downto 0);
+                         clk : in std_logic;
+                         carry : out std_logic;
+                         sign : out std_logic;
+                         overflow : out std_logic;
+                         zero : out std_logic
+                         
+        );
+        end component;
+        
+        component myRegisters is
+		
+		port
+			(
+		
+				clk : in std_logic;
+				address	: in  std_logic_vector(3 downto 0);
+				data	: in std_logic_vector((8-1) downto 0);
+				we	: in std_logic := '1';
+				externalReset : in std_logic;
+				q	: out std_logic_vector((8 -1) downto 0)
+				
+			);
+
+
+	end component;
+begin
+
+end alu;

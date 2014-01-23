@@ -16,8 +16,8 @@ entity alu is
 	port(
 			 carryEnable : in std_logic;
 			 cin : in std_logic;
-			 R : in  std_logic_vector(7 downto 0);
-			 S : in	std_logic_vector(7 downto 0);
+			 R : in  std_logic_vector(7 downto 0); --A
+			 S : in	std_logic_vector(7 downto 0); --B
 			 sel : in std_logic_vector(2 downto 0);
 			 dataOut : out std_logic_vector(7 downto 0);
 			 clk : in std_logic;

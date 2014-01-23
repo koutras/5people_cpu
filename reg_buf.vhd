@@ -1,6 +1,15 @@
 library IEEE;
 use IEEE.std_logic_1164.all; 
 
+--vasiki ontothta kataxwrhth
+--antistoixa tha dimiourgithoun kataxwrites
+-- 8/16 bit pou yposthrizoun leitourgies:
+-- 1)reset
+-- 2)increase
+-- 3)decrease
+-- 
+-- 4)high low gia 16bit kataxwrhth H
+-- 5) direction gia RDR
 
 entity reg_buf is
 	port(
