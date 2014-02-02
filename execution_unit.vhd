@@ -3,6 +3,7 @@ use IEEE.std_logic_1164.all;
 
 entity execution_unit is 
 port ( 
+	clk : in std_logic;
  MAR_WR: in std_logic; 
  MDR_DR: in std_logic; 
  MDR_OE: in std_logic; 
@@ -100,6 +101,12 @@ architecture execution_unit of execution_unit is
 
 
 	end component;
+	
+	signal a_bus std_logic_vector(15 downto 0);
 begin
+mdr : reg_buff port(input=>a_bus,output=>a_bus,)
+c1 : alu port map( carryEnable=>carryEnable, cin=>macroCarry, R=>aluR,
+		S=>aluS, sel=>aluSel, dataOut=>destAluRes,carry=>statusCarryAlu,
+		sign=>statusSign,overflow=>statusOverflow,zero=>statusZero,clk=>clk);
 
 end alu;
