@@ -1,99 +1,73 @@
---alu apo to project
---to do ulopoiish me kalutero tropo tou overflow
---prosthiki pollaplasiasmou (arxika ws dekadikou gia eukolia) Rint*Sint
-
---auto pou ginetai einai oti prota ginetai metatropi se dekadiko
---kai meta ginontai oi praxeis, opote o pollaplasiasmos den einai thema
---vevaia argotera o pollaplasiasths tha sxediastei ek tou midenos
---gia taxuthta
-
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_signed.all;
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity alu is
-	port(
-			 carryEnable : in std_logic;
-			 cin : in std_logic;
-			 R : in  std_logic_vector(7 downto 0); --A
-			 S : in	std_logic_vector(7 downto 0); --B
-			 sel : in std_logic_vector(2 downto 0);
-			 dataOut : out std_logic_vector(7 downto 0);
-			 clk : in std_logic;
-			 carry : out std_logic;
-			 sign : out std_logic;
-			 overflow : out std_logic;
-			 zero : out std_logic
-			 
-	);
-	
+port(  
+        Clk : in std_logic; 
+        A,B : in signed(7 downto 0); 
+        Op : in std_logic_vector(2 downto 0); 
+        R : out signed(7 downto 0);  
+        Cen : in std_logic;
+        C : out std_logic;
+        V : out std_logic;
+        Z : out std_logic       
+        );
 end alu;
 
-architecture alu of alu is
-	
-signal result : std_logic_vector(8 downto 0);
-signal c: std_logic;
-	
-	
-begin
-process(sel,R,S,c)
---process(clk,R,S)
-	variable Rint : integer range -128 to 127;
-	variable Sint : integer range -128 to 127;
-	variable cInt : integer range 0 to 1;
-	variable tempOverflow : std_logic;
-	begin
-			Rint:=conv_integer(R);
-			Sint:=conv_integer(S);
-			cInt:=conv_integer(c);
-			tempOverflow:='0';
-		--	if(clk'event and clk='1') then
-				case sel is
-						when "000"=>	result <= '0'&(R + S +c);
-											if((Rint>0 and Sint>127-(Rint+cInt)) or (Rint<0 and Sint<-128-(Rint+cInt)))then
-												tempOverflow:='1';
-											end if;
-											
-						when"001"=>result<='0'&(S-(R+c)) ;
-										if((-Rint>0 and Sint>127+(Rint+cInt)) or (-Rint<0 and Sint<-128+(Rint+cInt)))then
-												tempOverflow:='1';
-											end if;
-						when "010"=>result<='0'&(R-(S+c)) ;
-											if((Rint>0 and -Sint>127-(Rint+cInt)) or (Rint<0 and -Sint<-128-(Rint+cInt)))then
-												tempOverflow:='1';
-											end if;
-						when "011"=>result<='0'&(R or S);
-						when "100"=>result<='0'&(R and S);
-						when "101"=>result<='0'&((not R) and S) ;
-						 when "110"=>result<='0'&(R xor S);
-						 when "111"=>result<=	'0'&(not(R xor S)) ;	
-				end case;
-			overflow<=tempOverflow;
-			--	end if;
+architecture Behavioral of alu is
 
-	end process;
-					
-process(carryEnable,cin)
-begin
-	if(carryEnable='1') then
-		c<=cin;
-	else
-		c<='0';
-	end if;
-	
-end process;
 
-process(result)
-begin
-	if (result="000000000") then
-		zero<='1';
-	else
-		zero<='0';
-	end if;
-dataOut<=result(7 downto 0);
-carry<=result(8);
-sign<=result(7); 
-end process;
+signal Reg1,Reg2,Reg3 : signed(7 downto 0) := (others => '0');
 
-end alu;
+begin
+
+Reg1 <= A;
+Reg2 <= B;
+R <= Reg3;
+
+process(Clk)
+begin
+
+    if(rising_edge(Clk)) then 
+        case Op is
+            when "000" =>
+                Reg3 <= B;  
+            when "001" =>
+                Reg3 <= Reg1 + Reg2; 
+            when "010" =>
+                Reg3 <= Reg1 - Reg2; 
+            when "011" =>
+                Reg3 <= Reg1 and Reg2;  
+            when "100" =>
+                Reg3 <= Reg1 or Reg2;  
+            when "101" =>
+                Reg3 <= Reg1 xor Reg2; 
+            when "110" =>
+                Reg3 <= Reg1 + 1; 
+            when "111" =>
+                Reg3 <= Reg1 - 1;             
+            
+            when others =>
+                NULL;
+        end case;     
+        if (Cen='1') then
+           Reg3<=Reg3+1;
+        end if;  
+        if (Reg3=0) then
+           Z<='1';
+        end if; 
+        
+        if (Op = "001" and (Reg1 + Reg2 > (8))) then 
+           C <= '1';
+           V <= '1';
+        else
+           C <= '0';
+           V <= '0';
+        end if;
+        
+    end if;
+   
+end process;   
+
+end Behavioral;

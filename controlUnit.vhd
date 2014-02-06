@@ -3,173 +3,215 @@ use ieee.std_logic_1164.all;
 
 entity controlUnit is
 	port(
-			--inputs
-			 clk: in std_logic;
-			 opcode: in std_logic_vector(7 downto 0);
-			 Z: in std_logic; 
-			 int1 : in std_logic;
-			 int2 : in std_logic;
-			 
-			 bus16 : in std_logic_vector(15 downto 0);
-			 
-			 
-			 --outputs
-			 MAR_WR: out std_logic; 
-			 
-			 MDR_DR: out std_logic; 
-			 MDR_OE: out std_logic; 
-			 MDR_WR: out std_logic; 
-			 
-			 RAR_WR: out std_logic; 
-			 RDR_DIR: out std_logic;
-			 RDR_OE: out std_logic; 
-			 RDR_WR: out std_logic; 
-			 
-			 IR_WR: out std_logic; 
-			 
-			 PC_outC: out std_logic; 
-			 PC_OE: out std_logic; 
-			 PC_WR: out std_logic;
-			 
-			 H_H: out std_logic;
-			 H_L: out std_logic; 
-			 H_OE: out std_logic; 
-			 H_WR: out std_logic; 
-			 
-			 SP_outC: out std_logic; 
-			 SP_DCR: out std_logic; 
-			 SP_RST: out std_logic;
-			 SP_OE: out std_logic; 
-			 
-			 LB_RST: out std_logic; 
-			 LB_OE: out std_logic;
-			 
-			 UB_RST: out std_logic; 
-			 UB_OE: out std_logic; 
-			 
-			 ALU_C1: out std_logic; 
-			 ALU_C2: out std_logic;
-			 ALU_C3: out std_logic; 
-			 ALU_C4: out std_logic; 
-			 C_EN: out std_logic;
-			 AC_WR: out std_logic; 
-			 AC_RST: out std_logic;
-			 AC_OE: out std_logic
+	clk : in std_logic;
+	rst : in std_logic;
+
+	 MM_WR : out std_logic;
+	 MM_OE : out std_logic;
+	
+	 REG_WRA : out std_logic;
+	 REG_WRB : out std_logic;
+	 REG_OE : out std_logic; --enable tri-state buffer kataqwrhtwn
+	 
+	
+	
+	 PC_INC: out std_logic;
+	 PC_OE: out std_logic;
+	 PC_WR: out std_logic;
+	 PC_RST : out std_logic;
+	 
+	 AC_WR: out std_logic;
+	 AC_RST: out std_logic;
+	 AC_OE: out std_logic;
+	 
+	 ALU_OP: out std_logic_vector(2 downto 0);
+	 ALU_Z: in std_logic;
+	 ALU_C: in std_logic;
+	 ALU_V: in std_logic;
+	 ALU_S : in std_logic;
+	 
+	 C_EN: out std_logic;
+	 
+	 IR_WR: out std_logic;
+	 IR_OP: in signed(3 downto 0);
 			
 			
-			
---			MAR: out std_logic; 
---			MDR: out std_logic; 
---			RAR: out std_logic;
---			RDR: out std_logic; 
---			IR: out std_logic;
---			PC: out std_logic; 
---			H: out std_logic; 
---			SP: out std_logic;
---			LB: out std_logic; 
---			UB: out std_logic 
+
 	);
 end controlUnit;
 
 architecture controlUnit of controlUnit is
 
 
-	component heap --ylopoiisi tou heap, arxika me flip flop
-	end component
 	
 	
-	--perilambanei to interrupt controller kai alla polla
+	--constant
+	constant passB : std_logic_vector:="000";
 
 	--dilwsi simatwn & metavlitwn
-	 type state is(fetch0,fetch1,fetch2,move_r1_r2,load_r_d0);
+	 type state is(fetch_0,fetch_1,fetch_2,move_r1_r2_0,load_r_d0,load_r_a_0 );
 	signal prState,nxState : state; --present state next state
 	 
 	
 begin
-	process(opcode)
+	process(IR_OP) --arxikopoiei to prwto state diavazei to IR_OP kai metavainei sthn prwth katastash
 	begin
-		case opcode is
-			when "00000000" =>
-			 prState<=fetch0;
+	--when "00000000" =>nxState<=fetch_0;
+		when "00000001"=> nxState<=load_r_d_0;
+		when "00000010" =>nxState<=move_r1_r2_0;
+		when "00000011" =>nxState<=load_r_a_0;
+	--	when "00000100" =>
+	--	when "00000101" =>
+	--	when "00000110" =>
+	--	when "00000111" =>
+	--	when "00001000" =>
+	--	when "00001001" =>
+	--	when "00001010" =>
+	--	when "00001011" =>
+	--	when "00001100" =>
+	--	when "00001101" =>
+	--	when "00001110" =>
+	--	when "00001111" =>
+	--	when "00010000" =>
+	--	when "00010001" =>
+	--	when "00010010" =>
+	--	when "00010011" =>
+	--	when "00010100" =>
+	--	when "00010101" =>
+	--	when "00010110" =>
+		when others=> prState=>fetch_0;
+		
+	end  process
+	
+	
+	
+	process(prState) --give signals according to state
+	begin
+		case prState is
+			when fetch_0 =>
+				--MAR<-PC
 				
-			 MAR_WR<='0'; 
+				 nxState<=fetch_1; --dhlwnw poio tha einai to epomeno state
+					
+		
+				 MM_WR 			<='0';
+				 MM_OE		    <='0';
+				
+				 REG_WRA	    <='0';
+				 REG_WRB 		<='0';
+				 REG_OE 		<='0';--enable tri-state buffer kataqwrhtwn
+				 
+				
+				
+				 PC_INC 		<='0';
+				 PC_OE 			<='0';
+				 PC_WR 			<='1';
+				 PC_RST 		<='0';
+				 
+				 AC_WR 			<='0';
+				 AC_RST		    <='0';
+				 AC_OE 			<='0';
+				 
+				 ALU_OP 		<=passB;
+				 C_EN			<='0';
+				 
+				 IR_WR 			<='0';
+				 
+			when fetch_1 =>
+				--PC++ , IR<-memory
+				 MM_WR 			<='0';
+				 MM_OE		    <='0';
+				
+				 REG_WRA	    <='0';
+				 REG_WRB 		<='0';
+				 REG_OE 		<='0';--enable tri-state buffer kataqwrhtwn
+				 
+				
+				
+				 PC_INC 		<='1';
+				 PC_OE 			<='0'; --ouput pc to mar (without bus)
+				 PC_WR 			<='0';
+				 PC_RST 		<='0';
+				 
+				 AC_WR 			<='0';
+				 AC_RST		    <='0';
+				 AC_OE 			<='0';
+				 
+				 ALU_OP 		<=passB;
+				 C_EN			<='0';
+				 
+				 IR_WR 			<='1'; -- read ir from bus
+				 
+			when load_r_d_0 => --assumes reading d before R
+				
+				nxState<=load_r_d_1; --dhlwnw poio tha einai to epomeno state
+								
+				 MM_WR 			<='0';
+				 MM_OE		    <='0';
+				
+				 REG_WRA	    <='0';
+				 REG_WRB 		<='0';
+				 REG_OE 		<='0';--enable tri-state buffer kataqwrhtwn
+				 
+				
+				
+				 PC_INC 		<='1';
+				 PC_OE 			<='0';
+				 PC_WR 			<='0';
+				 PC_RST 		<='0';
+				 
+				 AC_WR 			<='1';
+				 AC_RST		    <='0';
+				 AC_OE 			<='0';
+				 
+				 ALU_OP 		<=passB;
+				 C_EN			<='0';
+				 
+				 IR_WR 			<='0';
+				 
+			when load_r_d_1 => --reads R
+				
+				nxState<=load_r_d_2; --dhlwnw poio tha einai to epomeno state
+								
+				 MM_WR 			<='0';
+				 MM_OE		    <='0';
+				
+				 REG_WRA	    <='0';
+				 REG_WRB 		<='0';
+				 REG_OE 		<='0';--enable tri-state buffer kataqwrhtwn
+				 
+				
+				
+				 PC_INC 		<='1';
+				 PC_OE 			<='0';
+				 PC_WR 			<='0';
+				 PC_RST 		<='0';
+				 
+				 AC_WR 			<='0';
+				 AC_RST		    <='0';
+				 AC_OE 			<='0';
+				 
+				 ALU_OP 		<=passB;
+				 C_EN			<='0';
+				 
+				 IR_WR 			<='0';
+				
 			 
-			 MDR_DR<='0'; 
-			 MDR_OE<='0'; 
-			 MDR_WR<='0'; 
-			 
-			 RAR_WR<='0'; 
-			 RDR_DIR<='0';
-			 RDR_OE<='0'; 
-			 RDR_WR<='0'; 
-			 
-			 IR_WR<='0'; 
-			 
-			 PC_outC<='0'; 
-			 PC_OE<='0'; 
-			 PC_WR<='0';
-			 
-			 H_H<='0';
-			 H_L<='0'; 
-			 H_OE<='0'; 
-			 H_WR<='0'; 
-			 
-			 SP_outC<='0'; 
-			 SP_DCR<='0'; 
-			 SP_RST<='0';
-			 SP_OE<='0'; 
-			 
-			 LB_RST<='0'; 
-			 LB_OE<='0';
-			 
-			 UB_RST<='0'; 
-			 UB_OE<='0'; 
-			 
-			 ALU_C1<='0'; 
-			 ALU_C2<='0';
-			 ALU_C3<='0'; 
-			 ALU_C4<='0'; 
-			 C_EN<='0';
-			 AC_WR<='0'; 
-			 AC_RST<='0';
-			 AC_OE<='0'
 			
-			when "00000001"=> load_r_d0;
-				controlSignals<="mpla mpla"; --entoli
-				--do sth else
-			when "00000010" =>move_r1_r2;
-			when "00000011" =>
-			when "00000100" =>
-			when "00000101" =>
-			when "00000110" =>
-			when "00000111" =>
-			when "00001000" =>
-			when "00001001" =>
-			when "00001010" =>
-			when "00001011" =>
-			when "00001100" =>
-			when "00001101" =>
-			when "00001110" =>
-			when "00001111" =>
-			when "00010000" =>
-			when "00010001" =>
-			when "00010010" =>
-			when "00010011" =>
-			when "00010100" =>
-			when "00010101" =>
-			when "00010110" =>
-			when others=> prState=>fetch0;
+			
 			
 		end case;
 	end process;
 	
-	process(prState) --metabash apo ena state sto allo
+	process(clk,rst) --metabash apo ena state sto allo
 	begin
-		when fetch0=> state<=fetch1;
-		when fetch1=> state<=fetch2;
+		if (rst='1') then
+			prState<=fetch_0;
+		elsif rising_edge(clk)
+			prState<=nxState;
+		end if;
 	end process
 	
-	process(int1,int2) --xeirismos twn diakopwn
-	end process; 
+	
 end controlUnit;
 		
